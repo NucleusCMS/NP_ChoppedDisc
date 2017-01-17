@@ -2,9 +2,9 @@
 class NP_ChoppedDisc extends NucleusPlugin {
     function getEventList() { return array(); }
     function getName() { return 'Chopped description'; }
-    function getAuthor() { return 'nakahara21'; }
-    function getURL() { return 'http://nakahara21.com/'; }
-    function getVersion() { return '0.7'; }
+    function getAuthor() { return 'nakahara21, yamamoto'; }
+    function getURL() { return 'https://github.com/NucleusCMS/NP_ChoppedDisc'; }
+    function getVersion() { return '0.8'; }
     function getDescription() {
         return 'Chopped description. &lt;%ChoppedDisc(250,1)%&gt;';
     }
