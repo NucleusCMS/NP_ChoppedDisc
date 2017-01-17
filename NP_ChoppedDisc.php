@@ -17,8 +17,32 @@ class NP_ChoppedDisc extends NucleusPlugin {
         }
     }
  
-    function parseHighlight($query) {
+    function doTemplateVar(&$item, $maxLength = 250, $addHighlight = 0) {
+        global $CONF, $manager, $member, $catid;
+        global $query;
  
+        if ($manager->pluginInstalled('NP_HighlightSource')) {
+            $tempPlugin =& $manager->getPlugin('NP_HighlightSource');
+            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->body); 
+            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->more); 
+        }
+ 
+        $syndicated = strip_tags($item->body);
+        $syndicated .= strip_tags($item->more);
+        $syndicated = preg_replace("/[\r\n]/","",$syndicated);
+ 
+        $syndicated = $this->chopStr($syndicated, $query, $maxLength);
+ 
+        if ($addHighlight) {
+            global $currentTemplateName;
+            $template =& $manager->getTemplate($currentTemplateName);
+            echo highlight($syndicated, $this->highlights, $template['SEARCH_HIGHLIGHT']);
+        } else {
+            echo $syndicated;
+        }
+    }
+    
+    function parseHighlight($query) {
         // get rid of quotes
         $query = preg_replace('/\'|"/','',$query);
  
@@ -33,15 +57,15 @@ class NP_ChoppedDisc extends NucleusPlugin {
             return $aHighlight;
     }
  
-    function splitLastStr($str, $width=5){
+    function splitLastStr($str, $width=5) {
         $posn = (mb_strwidth($str) > $width)? mb_strwidth($str) - $width: 0;
         $resArray[0] = ($posn)? mb_strcut($str, 0, $posn, _CHARSET): '';
         $resArray[1] = ($posn)? mb_strcut($str, $posn, $width + 2, _CHARSET): $str;
         return $resArray;
     }
  
-    function chopStr($str, $query, $maxLength){
- 
+    function chopStr($str, $query, $maxLength) {
+
         $searchclass = new SEARCH($query);
         $highlight      = $searchclass->inclusive;
         $this->highlights = $this->parseHighlight($highlight);
@@ -166,30 +190,4 @@ class NP_ChoppedDisc extends NucleusPlugin {
         }
         return $tt;
     }
- 
-    function doTemplateVar(&$item, $maxLength = 250, $addHighlight = 0){
-        global $CONF, $manager, $member, $catid;
-        global $query;
- 
-        if ($manager->pluginInstalled('NP_HighlightSource')) {
-            $tempPlugin =& $manager->getPlugin('NP_HighlightSource');
-            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->body); 
-            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->more); 
-        }
- 
-        $syndicated = strip_tags($item->body);
-        $syndicated .= strip_tags($item->more);
-        $syndicated = preg_replace("/[\r\n]/","",$syndicated);
- 
-        $syndicated = $this->chopStr($syndicated, $query, $maxLength);
- 
-        if ($addHighlight) {
-            global $currentTemplateName;
-            $template =& $manager->getTemplate($currentTemplateName);
-            echo highlight($syndicated, $this->highlights, $template['SEARCH_HIGHLIGHT']);
-        } else {
-            echo $syndicated;
-        }
-    }
- 
 }
