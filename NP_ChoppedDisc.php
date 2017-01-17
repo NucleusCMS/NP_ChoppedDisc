@@ -42,7 +42,7 @@ class NP_ChoppedDisc extends NucleusPlugin {
  
     function chopStr($str, $query, $maxLength){
  
-        $searchclass =& new SEARCH($query);
+        $searchclass = new SEARCH($query);
         $highlight      = $searchclass->inclusive;
         $this->highlights = $this->parseHighlight($highlight);
  
