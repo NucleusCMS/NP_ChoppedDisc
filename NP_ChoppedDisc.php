@@ -81,11 +81,11 @@ class NP_ChoppedDisc extends NucleusPlugin {
         $text = '< >'.$text;
         preg_match_all('/(<[^>]+>)([^<>]*)/', $text, $matches);
         for($i=0;$i<count($matches[1]);$i++){
-            $matches[1][$i] = ereg_replace("<|>",'',$matches[1][$i]);
+            $matches[1][$i] = str_replace(array('<','>'),'',$matches[1][$i]);
         }
         for($i=0;$i<count($this->highlights);$i++){
             for($e=0;$e<count($matches[1]);$e++){
-                if(eregi($this->highlights[$i], $matches[1][$e])){
+                if(preg_match('/'.$this->highlights[$i] . '/i', $matches[1][$e])){
                     if(!$hitkey[$i]) $hitkey[$i] = $e;
                 }
             }
