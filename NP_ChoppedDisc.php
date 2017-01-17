@@ -8,14 +8,6 @@ class NP_ChoppedDisc extends NucleusPlugin {
     function getDescription() {
         return 'Chopped description. &lt;%ChoppedDisc(250,1)%&gt;';
     }
-    function supportsFeature($what) {
-        switch($what){
-            case 'SqlTablePrefix':
-                return 1;
-            default:
-                return 0;
-        }
-    }
  
     function doTemplateVar(&$item, $maxLength = 250, $addHighlight = 0) {
         global $CONF, $manager, $member, $catid;
@@ -50,8 +42,8 @@ class NP_ChoppedDisc extends NucleusPlugin {
  
         $aHighlight = explode(' ', $query);
  
-        for ($i = 0; $i<count($aHighlight); $i++) {
-            $aHighlight[$i] = trim($aHighlight[$i]);
+        foreach ($aHighlight as $i=>$v) {
+            $aHighlight[$i] = trim($v);
         }
  
             return $aHighlight;
@@ -80,13 +72,13 @@ class NP_ChoppedDisc extends NucleusPlugin {
         $text = highlight($str, $this->highlights, '<\0>');
         $text = '< >'.$text;
         preg_match_all('/(<[^>]+>)([^<>]*)/', $text, $matches);
-        for($i=0;$i<count($matches[1]);$i++){
-            $matches[1][$i] = str_replace(array('<','>'),'',$matches[1][$i]);
+        foreach($matches[1] as $i=>$v){
+            $matches[1][$i] = str_replace(array('<','>'),'',$v);
         }
-        for($i=0;$i<count($this->highlights);$i++){
-            for($e=0;$e<count($matches[1]);$e++){
-                if(preg_match('/'.$this->highlights[$i] . '/i', $matches[1][$e])){
-                    if(!$hitkey[$i]) $hitkey[$i] = $e;
+        foreach($this->highlights as $i=>$v){
+            foreach($matches[1] as $e=>$match){
+                if(preg_match('/'.$v . '/i', $match) && !$hitkey[$i]){
+                    $hitkey[$i] = $e;
                 }
             }
         }
@@ -106,9 +98,8 @@ class NP_ChoppedDisc extends NucleusPlugin {
             $trimLength = intval(($maxLength - mb_strwidth(join("",$hitWordArray))) / (count($hitWordArray) +1));
  
             $left = $str;
-            $i=0;
-            while($i <= count($hitWordArray)){
-                $tempArray = ($hitWord = $hitWordArray[$i])? explode($hitWord, $left, 2): array($left, '');
+            foreach($hitWordArray as $i=>$hitWord){
+                $tempArray = ($hitWord)? explode($hitWord, $left, 2): array($left, '');
                 $preStr = ($hitWord)? $this->splitLastStr($tempArray[0], 5): array($left, '');
  
                 $left = $preStr[1].$hitWord.$tempArray[1];
@@ -126,20 +117,19 @@ class NP_ChoppedDisc extends NucleusPlugin {
                 }
  
                 if(!$hitWord) break;
-                $i++;
-                $list[$i]['q'] = $hitWord;
-                $list[$i]['qlen'] = mb_strwidth($hitWord);
+                $list[$i+1]['q'] = $hitWord;
+                $list[$i+1]['qlen'] = mb_strwidth($hitWord);
             }
  
-            for($i=0;$i<count($list);$i++){
+            foreach($list as $i=>$v){
                 if($list[$i]['trimlen'] && ($addsum > 0)){
-                    $list[$i]['trimlen'] = min($list[$i]['trimlen'], $addsum);
-                    $addsum -= $list[$i]['trimlen'];
-                    $list[$i]['trimlen'] = $trimLength + $list[$i]['trimlen'] + $list[$i]['qlen'];
-                }elseif($list[$i]['trimlen']){
-                    $list[$i]['trimlen'] = $trimLength + $list[$i]['qlen'];
+                    $list[$i]['trimlen'] = min($v['trimlen'], $addsum);
+                    $addsum -= $v['trimlen'];
+                    $list[$i]['trimlen'] = $trimLength + $v['trimlen'] + $v['qlen'];
+                }elseif($v['trimlen']){
+                    $list[$i]['trimlen'] = $trimLength + $v['qlen'];
                 }else{
-                    $list[$i]['trimlen'] = $list[$i]['len'];
+                    $list[$i]['trimlen'] = $v['len'];
                 }
             }
  
@@ -151,9 +141,9 @@ class NP_ChoppedDisc extends NucleusPlugin {
             if($list[0]['len'] > $list[0]['trimlen'])
                 $tt = $toated.$tt;
  
-            for($i=1;$i<count($list);$i++){
-                $tt .= mb_strcut($list[$i]['str'], 0, $list[$i]['trimlen'], _CHARSET);
-                if($list[$i]['len'] > $list[$i]['trimlen'])
+            foreach($list as $i=>$v){
+                $tt .= mb_strcut($v['str'], 0, $v['trimlen'], _CHARSET);
+                if($v['len'] > $v['trimlen'])
                     $tt .= $toated;
             }
         }else{
