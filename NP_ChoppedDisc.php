@@ -38,7 +38,7 @@ class NP_ChoppedDisc extends NucleusPlugin {
         // get rid of quotes
         $query = preg_replace('/\'|"/','',$query);
  
-        if (!query) return array();
+        if (!$query) return array();
  
         $aHighlight = explode(' ', $query);
  
@@ -57,7 +57,7 @@ class NP_ChoppedDisc extends NucleusPlugin {
     }
  
     function chopStr($str, $query, $maxLength) {
-
+        $addsum = 0;
         $searchclass = new SEARCH($query);
         $highlight      = $searchclass->inclusive;
         $this->highlights = $this->parseHighlight($highlight);
