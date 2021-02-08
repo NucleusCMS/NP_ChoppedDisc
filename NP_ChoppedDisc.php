@@ -25,7 +25,7 @@ class NP_ChoppedDisc extends NucleusPlugin
     {
         return '0.8';
     }
-    
+
     function getDescription()
     {
         return 'Chopped description. &lt;%ChoppedDisc(250,1)%&gt;';
@@ -33,13 +33,20 @@ class NP_ChoppedDisc extends NucleusPlugin
 
     function doTemplateVar(&$item, $maxLength = 250, $addHighlight = 0)
     {
-        global $CONF, $manager, $member, $catid;
-        global $query;
+        global $manager, $query;
 
         if ($manager->pluginInstalled('NP_HighlightSource')) {
             $tempPlugin = &$manager->getPlugin('NP_HighlightSource');
-            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->body);
-            preg_replace_callback("#<hs(|:[^>]+?)>(.*?)</hs>#s", array(&$tempPlugin, 'phpHighlight'), $item->more);
+            preg_replace_callback(
+                "#<hs(|:[^>]+?)>(.*?)</hs>#s",
+                array(&$tempPlugin, 'phpHighlight'),
+                $item->body
+            );
+            preg_replace_callback(
+                "#<hs(|:[^>]+?)>(.*?)</hs>#s",
+                array(&$tempPlugin, 'phpHighlight'),
+                $item->more
+            );
         }
 
         $syndicated = strip_tags($item->body);
@@ -60,7 +67,7 @@ class NP_ChoppedDisc extends NucleusPlugin
     function parseHighlight($query)
     {
         // get rid of quotes
-        $query = preg_replace('/\'|"/', '', $query);
+        $query = preg_replace('/[\'"]/', '', $query);
 
         if (!$query) return array();
 
@@ -121,7 +128,7 @@ class NP_ChoppedDisc extends NucleusPlugin
             }
 
             $list[0] = array("qlen" => 0, "q" => '');
-            $trimLength = intval(($maxLength - mb_strwidth(join("", $hitWordArray))) / (count($hitWordArray) + 1));
+            $trimLength = (int)(($maxLength - mb_strwidth(implode('', $hitWordArray))) / (count($hitWordArray) + 1));
 
             $left = $str;
             foreach ($hitWordArray as $i => $hitWord) {
@@ -165,8 +172,9 @@ class NP_ChoppedDisc extends NucleusPlugin
                 $list[0]['trimlen'] + 2,
                 _CHARSET
             );
-            if ($list[0]['len'] > $list[0]['trimlen'])
+            if ($list[0]['len'] > $list[0]['trimlen']) {
                 $tt = $toated . $tt;
+            }
 
             foreach ($list as $i => $v) {
                 $tt .= mb_strcut($v['str'], 0, $v['trimlen'], _CHARSET);
@@ -182,7 +190,7 @@ class NP_ChoppedDisc extends NucleusPlugin
 
             $preStrLength = mb_strwidth($preStr);
             $hStrLength = mb_strwidth($hStr);
-            $halfLength = intval(($maxLength - $keyLength) / 2);
+            $halfLength = (int)(($maxLength - $keyLength) / 2);
 
             $hTrimLength = $preTrimLength = $halfLength;
             $minLength = min($preStrLength, $hStrLength, $halfLength);
@@ -199,10 +207,12 @@ class NP_ChoppedDisc extends NucleusPlugin
             $tt .= $matches[1][1];
             $tt .= mb_strcut($hStr, 0, $hTrimLength, _CHARSET);
 
-            if ($preTrimLength < $preStrLength)
+            if ($preTrimLength < $preStrLength) {
                 $tt = $toated . $tt;
-            if ($hTrimLength < $hStrLength)
+            }
+            if ($hTrimLength < $hStrLength) {
                 $tt .= $toated;
+            }
         }
         return $tt;
     }
